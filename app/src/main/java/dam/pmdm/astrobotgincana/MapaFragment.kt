@@ -32,6 +32,7 @@ import org.maplibre.android.annotations.IconFactory
 import androidx.core.graphics.scale
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 
@@ -42,6 +43,7 @@ class MapaFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var mapLibreMap: MapLibreMap
+    private var locationComponentInicializado = false
 
 
     // Marcadores del mapa
@@ -146,6 +148,7 @@ class MapaFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("MissingPermission")
     private fun inicializarMapa() {
 
         binding.mapView.getMapAsync { map ->
@@ -226,45 +229,70 @@ class MapaFragment : Fragment() {
                     CameraUpdateFactory.newCameraPosition(cameraPosition)
                 )
 
+                inicializarComponenteUbicacion()
+
                 binding.switchUbicacion.setOnCheckedChangeListener { _, isChecked ->
 
-                    if (
-                        ActivityCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
+                    if (!locationComponentInicializado) {
+                        return@setOnCheckedChangeListener
+                    }
 
-                        val locationComponent =
-                            mapLibreMap.locationComponent
+                    val locationComponent = mapLibreMap.locationComponent
 
-                        if (isChecked) {
+                    if (isChecked) {
 
-                            if (!locationComponent.isLocationComponentActivated) {
+                        locationComponent.isLocationComponentEnabled = true
 
-                                locationComponent.activateLocationComponent(
-                                    LocationComponentActivationOptions.builder(
-                                        requireContext(),
-                                        mapLibreMap.style!!
-                                    ).build()
-                                )
-                            }
+                        locationComponent.cameraMode = CameraMode.TRACKING
 
-                            locationComponent.isLocationComponentEnabled = true
+                        locationComponent.renderMode = RenderMode.COMPASS
 
-                            locationComponent.cameraMode = CameraMode.TRACKING
+                    } else {
 
-                            locationComponent.renderMode = RenderMode.COMPASS
-
-                        } else {
-
-                            locationComponent.isLocationComponentEnabled = false
-                        }
+                        locationComponent.isLocationComponentEnabled = false
                     }
                 }
 
             }
         }
+    }
+
+    private fun inicializarComponenteUbicacion() {
+
+        if (
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            solicitarPermisosUbicacion()
+
+            return
+        }
+
+        val locationComponent = mapLibreMap.locationComponent
+
+        if (!locationComponent.isLocationComponentActivated) {
+
+            locationComponent.activateLocationComponent(
+                LocationComponentActivationOptions.builder(
+                    requireContext(),
+                    mapLibreMap.style!!
+                ).build()
+            )
+            locationComponentInicializado = true
+        }
+
+        locationComponent.isLocationComponentEnabled = false
+    }
+
+    private fun solicitarPermisosUbicacion() {
+
+        requestPermissions(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            1001
+        )
     }
 
     private fun mostrarDialogoMision(mision: MisionAstroBot) {
