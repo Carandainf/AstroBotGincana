@@ -70,6 +70,54 @@ class MapaFragment : Fragment() {
             37.8882,
             -4.7794,
             "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Jaén",
+            "Recupera los módulos de navegación dañados.",
+            37.7796,
+            -3.7849,
+            "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Almería",
+            "Desactiva las minas robóticas del desierto.",
+            36.8340,
+            -2.4637,
+            "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Cádiz",
+            "Protege el puerto espacial costero.",
+            36.5271,
+            -6.2886,
+            "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Huelva",
+            "Encuentra las piezas perdidas del reactor.",
+            37.2614,
+            -6.9447,
+            "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Marbella",
+            "Escanea señales alienígenas en la costa.",
+            36.5101,
+            -4.8825,
+            "astrobot"
+        ),
+
+        MisionAstroBot(
+            "Ronda",
+            "Reinicia la torre de comunicaciones.",
+            36.7423,
+            -5.1671,
+            "astrobot"
         )
 
     )
