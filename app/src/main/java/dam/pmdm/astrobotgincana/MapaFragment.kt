@@ -16,6 +16,9 @@ import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.Style
 import org.maplibre.android.MapLibre
 import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.location.LocationComponentActivationOptions
+import org.maplibre.android.location.modes.CameraMode
+import org.maplibre.android.location.modes.RenderMode
 
 import android.app.AlertDialog
 import android.widget.EditText
@@ -24,10 +27,13 @@ import android.widget.Toast
 import android.text.Editable
 import android.text.TextWatcher
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import org.maplibre.android.annotations.IconFactory
 import androidx.core.graphics.scale
+
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 
 
 class MapaFragment : Fragment() {
@@ -36,6 +42,7 @@ class MapaFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var mapLibreMap: MapLibreMap
+
 
     // Marcadores del mapa
     private val misiones = listOf(
@@ -218,6 +225,44 @@ class MapaFragment : Fragment() {
                 map.animateCamera(
                     CameraUpdateFactory.newCameraPosition(cameraPosition)
                 )
+
+                binding.switchUbicacion.setOnCheckedChangeListener { _, isChecked ->
+
+                    if (
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+
+                        val locationComponent =
+                            mapLibreMap.locationComponent
+
+                        if (isChecked) {
+
+                            if (!locationComponent.isLocationComponentActivated) {
+
+                                locationComponent.activateLocationComponent(
+                                    LocationComponentActivationOptions.builder(
+                                        requireContext(),
+                                        mapLibreMap.style!!
+                                    ).build()
+                                )
+                            }
+
+                            locationComponent.isLocationComponentEnabled = true
+
+                            locationComponent.cameraMode = CameraMode.TRACKING
+
+                            locationComponent.renderMode = RenderMode.COMPASS
+
+                        } else {
+
+                            locationComponent.isLocationComponentEnabled = false
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -338,5 +383,10 @@ class MapaFragment : Fragment() {
         binding.mapView.onDestroy()
 
         _binding = null
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
     }
 }

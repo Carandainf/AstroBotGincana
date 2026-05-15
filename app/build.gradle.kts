@@ -50,4 +50,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     implementation("org.maplibre.gl:android-sdk:11.7.0")
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
